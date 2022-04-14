@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 import express from 'express';
 
 import getConfig from 'config';

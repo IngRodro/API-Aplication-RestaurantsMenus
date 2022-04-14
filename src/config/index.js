@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 const config = () => ({
   port: process.env.APP_PORT || 8080,
   database: {

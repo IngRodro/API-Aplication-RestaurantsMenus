@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 import mongoose from 'mongoose';
 import getConfig from 'config';
 

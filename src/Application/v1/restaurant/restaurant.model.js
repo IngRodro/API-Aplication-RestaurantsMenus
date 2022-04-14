@@ -30,7 +30,7 @@ const restaurant = new Schema(
       type: String,
       required: true,
     },
-    delivery:{
+    delivery: {
       type: Boolean,
       required: true,
     },
@@ -69,5 +69,5 @@ restaurant.set('toJSON', {
 });
 
 // rename name Example to singular Model
-export default mongoose.models[singularName] ||
-  mongoose.model(pluralName, restaurant);
+export default mongoose.models[singularName]
+  || mongoose.model(pluralName, restaurant);
