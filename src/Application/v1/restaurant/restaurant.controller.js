@@ -15,18 +15,35 @@ export const getAllRestaurant = async (req, res) => {
   }
 };
 
-export const createExample = async (req, res) => {
-  const { fullName, email } = req.body;
+export const createRestaurant = async (req, res) => {
+  const {
+    name, email, department, municipality, direction,
+    delivery, phone, openingHour, closingHour, logo
+  } = req.body;
 
-  if (!fullName || !email) {
+  if (!name || !email || !department || !municipality || !direction
+    || !delivery || !phone || !openingHour || !closingHour || !logo) {
     return res.status(400).json({
-      message: 'Faltan datos, la consulta debe contener fullName y email',
+      message: 'Todos los campos se deben completar',
       code: 400,
     });
   }
 
   try {
-    const data = await RestaurantModule.create({ fullName, email });
+    const data = await RestaurantModule.create(
+      {
+        name,
+        email,
+        department,
+        municipality,
+        direction,
+        delivery,
+        phone,
+        openingHour,
+        closingHour,
+        logo
+      }
+    );
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);

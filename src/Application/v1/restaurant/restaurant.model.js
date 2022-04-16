@@ -38,14 +38,11 @@ const restaurant = new Schema(
       type: String,
       required: true,
     },
-    delivery_time: {
-      type: String,
-    },
-    opening_hours: {
+    openingHour: {
       type: String,
       required: true,
     },
-    closing_hours: {
+    closingHour: {
       type: String,
       required: true,
     },
