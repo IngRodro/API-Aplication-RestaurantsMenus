@@ -1,4 +1,6 @@
+import fs from 'fs-extra';
 import RestaurantModule from './restaurant.model';
+import { uploadFile } from '../../../Utils/cloudFile';
 
 export const getAllRestaurant = async (req, res) => {
   const { offset, limit } = req.params;
@@ -17,33 +19,58 @@ export const getAllRestaurant = async (req, res) => {
 
 export const createRestaurant = async (req, res) => {
   const {
-    name, email, department, municipality, direction,
-    delivery, phone, openingHour, closingHour, logo
+    name,
+    email,
+    department,
+    municipality,
+    direction,
+    delivery,
+    phone,
+    openingHour,
+    closingHour,
   } = req.body;
 
-  if (!name || !email || !department || !municipality || !direction
-    || !delivery || !phone || !openingHour || !closingHour || !logo) {
+  console.log(req.body);
+
+  if (
+    !name
+    || !email
+    || !department
+    || !municipality
+    || !direction
+    || !delivery
+    || !phone
+    || !openingHour
+    || !closingHour
+  ) {
     return res.status(400).json({
       message: 'Todos los campos se deben completar',
       code: 400,
     });
   }
-
   try {
-    const data = await RestaurantModule.create(
-      {
-        name,
-        email,
-        department,
-        municipality,
-        direction,
-        delivery,
-        phone,
-        openingHour,
-        closingHour,
-        logo
-      }
-    );
+    let logo = {};
+    if (req.files.logo) {
+      console.log(req.files.logo);
+      const result = await uploadFile(req.files.logo.tempFilePath);
+      logo = {
+        public_id: result.public_id,
+        secure_url: result.secure_url,
+      };
+      await fs.unlink(req.files.logo.tempFilePath);
+    }
+    const data = await RestaurantModule.create({
+      name,
+      email,
+      department,
+      municipality,
+      direction,
+      delivery,
+      phone,
+      openingHour,
+      closingHour,
+      logo,
+    });
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);
