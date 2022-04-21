@@ -5,8 +5,7 @@
     "browser": true
   },
   "parserOptions": {
-    "project": "./jsconfig.json",
-    "ecmaVersion": "latest"
+    "project": "./jsconfig.json"
   },
   "rules": {
     "function-paren-newline": "off",

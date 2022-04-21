@@ -1,8 +1,6 @@
 import express from 'express';
 import fileUpload from 'express-fileupload';
-import {
-  getAllRestaurant, createRestaurant, updateRestaurant, deleteRestaurant
-} from './restaurant.controller';
+import { getAllRestaurant, createRestaurant, updateRestaurant } from './restaurant.controller';
 
 const router = express.Router();
 
@@ -11,9 +9,6 @@ router.post('/', fileUpload({
   useTempFiles: true,
   tempFileDir: './uploads',
 }), createRestaurant);
-router.put('/:idRestaurant', fileUpload({
-  useTempFiles: true,
-  tempFileDir: './uploads',
-}), updateRestaurant);
-router.delete('/:idRestaurant', deleteRestaurant);
+router.post('/', updateRestaurant);
+
 export default router;
