@@ -82,5 +82,25 @@ export const createRestaurant = async (req, res) => {
   }
 };
 
+export const deleteRestaurant = async (req, res) => {
+  const { params } = req;
+  const { idRestaurant } = params;
 
+  try {
+    const data = await RestaurantModule.findOneAndUpdate(
+      { _id: idRestaurant },
+      { status: 'inactive' }
+    );
+
+    return res.status(200).json({
+      ...data,
+      status: 'inactive',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      code: 500,
+      message: 'Error al eliminar los datos',
+    });
+  }
+};
 
