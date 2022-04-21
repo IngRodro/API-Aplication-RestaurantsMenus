@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import RestaurantModule from './restaurant.model';
 import { uploadFile } from '../../../Utils/cloudFile';
+import ProductModule from '../product/product.model';
 
 export const getAllRestaurant = async (req, res) => {
   const { offset, limit } = req.params;
@@ -80,3 +81,6 @@ export const createRestaurant = async (req, res) => {
     });
   }
 };
+
+
+
