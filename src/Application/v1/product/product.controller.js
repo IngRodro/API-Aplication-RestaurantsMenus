@@ -74,3 +74,27 @@ export const createProduct = async (req, res) => {
       }
     };
 
+
+    export const deleteProduct = async (req, res) => {
+      const { params } = req;
+      const { idProduct } = params;
+
+      try {
+        const data = await ProductModule.findOneAndUpdate(
+          { _id: idProduct },
+          { status: 'inactive' }
+        );
+
+        return res.status(200).json({
+          ...data,
+          status: 'inactive',
+        });
+      } catch (error) {
+        return res.status(500).json({
+          code: 500,
+          message: 'Error al eliminar los datos',
+        });
+      }
+    };
+
+
