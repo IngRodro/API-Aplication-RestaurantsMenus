@@ -1,13 +1,13 @@
 import fs from 'fs-extra';
-import RestaurantModule from './restaurant.model';
-import { uploadFile } from '../../../Utils/cloudFile';
-import ProductModule from '../product/product.model';
+import RestaurantModel from './restaurant.model';
+import { uploadFile, deleteFile } from '../../../Utils/cloudFile';
 
 export const getAllRestaurant = async (req, res) => {
   const { offset, limit } = req.params;
+  const { status = 'active' } = req.query;
 
   try {
-    const data = await RestaurantModule.find().skip(offset).limit(limit);
+    const data = await RestaurantModel.find({ status }).skip(offset).limit(limit);
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);
@@ -60,7 +60,7 @@ export const createRestaurant = async (req, res) => {
       };
       await fs.unlink(req.files.logo.tempFilePath);
     }
-    const data = await RestaurantModule.create({
+    const data = await RestaurantModel.create({
       name,
       email,
       department,
@@ -81,13 +81,55 @@ export const createRestaurant = async (req, res) => {
     });
   }
 };
-
-export const deleteRestaurant = async (req, res) => {
-  const { params } = req;
+export const updateRestaurant = async (req, res) => {
+  const { body, params } = req;
   const { idRestaurant } = params;
 
+  if (!body || !req.files?.logo) {
+    return res.status(400).json({
+      message: 'Hacen faltan campos',
+    });
+  }
+
   try {
-    const data = await RestaurantModule.findOneAndUpdate(
+    let logo = {};
+    const actualdata = await RestaurantModel.findById(idRestaurant);
+    await deleteFile(actualdata.logo.public_id);
+    const result = await uploadFile(req.files.logo.tempFilePath);
+    logo = {
+      public_id: result.public_id,
+      secure_url: result.secure_url,
+    };
+    await fs.unlink(req.files.logo.tempFilePath);
+    const data = await RestaurantModel.findOneAndUpdate(
+      { _id: idRestaurant },
+      {
+        name: body.name,
+        email: body.email,
+        department: body.department,
+        municipality: body.municipality,
+        direction: body.direction,
+        delivery: body.delivery,
+        phone: body.phone,
+        openingHour: body.openingHour,
+        closingHour: body.closingHour,
+        logo,
+      }
+    );
+    return res.status(200).json(Object.assign(data, body));
+  } catch (error) {
+    return res.status(500).json({
+      code: 500,
+      message: 'No se pudo actualizar el registro',
+    });
+  }
+};
+
+export const deleteRestaurant = async (req, res) => {
+  try {
+    const { idRestaurant } = req.params;
+
+    const data = await RestaurantModel.findOneAndUpdate(
       { _id: idRestaurant },
       { status: 'inactive' }
     );
@@ -99,8 +141,7 @@ export const deleteRestaurant = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       code: 500,
-      message: 'Error al eliminar los datos',
+      message: 'No se pudo eliminar el registro',
     });
   }
 };
-
