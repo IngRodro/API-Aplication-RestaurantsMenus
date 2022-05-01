@@ -10,13 +10,20 @@ const product = new Schema(
       type: String,
       required: true,
     },
-    state: {
+    status: {
       type: String,
-      required: true,
+      enum: ['active', 'inactive', 'deleted'],
+      default: 'active',
     },
     image: {
-      type: String,
-      required: true,
+      public_id: {
+        type: String,
+        required: true,
+      },
+      secure_url: {
+        type: String,
+        required: true,
+      }
     },
   },
   {

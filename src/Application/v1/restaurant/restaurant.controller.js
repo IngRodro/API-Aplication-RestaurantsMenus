@@ -52,7 +52,6 @@ export const createRestaurant = async (req, res) => {
   try {
     let logo = {};
     if (req.files.logo) {
-      console.log(req.files.logo);
       const result = await uploadFile(req.files.logo.tempFilePath);
       logo = {
         public_id: result.public_id,
@@ -93,8 +92,8 @@ export const updateRestaurant = async (req, res) => {
 
   try {
     let logo = {};
-    const actualdata = await RestaurantModel.findById(idRestaurant);
-    await deleteFile(actualdata.logo.public_id);
+    const actualData = await RestaurantModel.findById(idRestaurant);
+    await deleteFile(actualData.logo.public_id);
     const result = await uploadFile(req.files.logo.tempFilePath);
     logo = {
       public_id: result.public_id,

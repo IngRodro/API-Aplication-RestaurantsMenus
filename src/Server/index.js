@@ -1,14 +1,10 @@
 import express from 'express';
-
-import getConfig from 'config';
 import { initializeDB } from './db';
 
-const { port } = getConfig();
-
-const app = express();
+export const app = express();
 
 // creating Server
-const initializeServer = async (routes) => {
+export const initializeServer = async (routes) => {
   // initialize DB
   await initializeDB();
 
@@ -17,11 +13,4 @@ const initializeServer = async (routes) => {
 
   // set urls
   app.use(routes);
-
-  // create express app
-  app.listen(port, () => {
-    console.log(`Example app listening on http://localhost:${port}`);
-  });
 };
-
-export default initializeServer;
