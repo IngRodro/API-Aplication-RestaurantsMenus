@@ -71,7 +71,7 @@ export const createRestaurant = async (req, res) => {
       closingHour,
       logo,
     });
-    return res.status(200).json(data);
+    return res.status(201).json(data);
   } catch (error) {
     console.error(error);
     return res.status(500).json({
