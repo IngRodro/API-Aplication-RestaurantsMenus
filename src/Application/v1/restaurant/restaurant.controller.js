@@ -31,8 +31,6 @@ export const createRestaurant = async (req, res) => {
     closingHour,
   } = req.body;
 
-  console.log(req.body);
-
   if (
     !name
     || !email

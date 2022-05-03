@@ -3,7 +3,7 @@ import { server } from '../src/main';
 import {
   initalRestaurants,
   api,
-  getAllNamesfromRestaurant
+  getAllNamesfromRestaurant,
 } from './helper/restaurant.helper';
 
 beforeEach(async () => {
@@ -12,7 +12,7 @@ beforeEach(async () => {
   await restaurantModel.create(initalRestaurants);
 });
 
-describe('GET Restaurants', () => {
+describe('Get Restaurants', () => {
   test('Return all Restaurant', () => api
     .get('/v1/restaurants')
     .expect(200)
@@ -98,15 +98,15 @@ describe('Create a restaurant', () => {
       .field('phone', newRestaurant.phone)
       .field('openingHour', newRestaurant.openingHour)
       .field('closingHour', newRestaurant.closingHour)
-      .expect(400)
-      .set('Content-Type', 'multipart/form-data');
+      .set('Content-Type', 'multipart/form-data')
+      .expect(400);
 
     const response = await api.get('/v1/restaurants');
 
     expect(response.body).toHaveLength(initalRestaurants.length);
   });
 
-  test('Is not possible with a restaurant empty', async () => {
+  test('Is not possible with a invalid restaurant', async () => {
     await api
       .post('/v1/restaurants')
       .expect(400)
@@ -118,6 +118,106 @@ describe('Create a restaurant', () => {
   });
 });
 
+describe('Update a restaurant', () => {
+  test('Is possible with a valid restaurant', async () => {
+    const restaurants = await restaurantModel.find();
+    const updateRestaurant = {
+      name: 'Restaurant Updated',
+      email: 'restauranteUpdated@gmail.com',
+      department: 'Chalatenango',
+      municipality: 'Santa Rita',
+      direction: 'Direction Updated',
+      delivery: false,
+      phone: '345678912',
+      openingHour: '10:00',
+      closingHour: '22:00',
+      dir: 'test/img/logo.jpg',
+    };
+
+    await api
+      .put(`/v1/restaurants/${restaurants[0]._id}`)
+      .field('name', updateRestaurant.name)
+      .field('email', updateRestaurant.email)
+      .field('department', updateRestaurant.department)
+      .field('municipality', updateRestaurant.municipality)
+      .field('direction', updateRestaurant.direction)
+      .field('delivery', updateRestaurant.delivery)
+      .field('phone', updateRestaurant.phone)
+      .field('openingHour', updateRestaurant.openingHour)
+      .field('closingHour', updateRestaurant.closingHour)
+      .attach('logo', updateRestaurant.dir)
+      .set('Content-Type', 'multipart/form-data')
+      .expect(200);
+
+    const restaurantUpdated = await restaurantModel.findById(restaurants[0]._id);
+    expect(restaurantUpdated).toHaveProperty('name', updateRestaurant.name);
+    expect(restaurantUpdated).toHaveProperty('email', updateRestaurant.email);
+    expect(restaurantUpdated).toHaveProperty('department', updateRestaurant.department);
+    expect(restaurantUpdated).toHaveProperty('municipality', updateRestaurant.municipality);
+    expect(restaurantUpdated).toHaveProperty('direction', updateRestaurant.direction);
+    expect(restaurantUpdated).toHaveProperty('phone', updateRestaurant.phone);
+    expect(restaurantUpdated).toHaveProperty('openingHour', updateRestaurant.openingHour);
+    expect(restaurantUpdated).toHaveProperty('closingHour', updateRestaurant.closingHour);
+  });
+
+  test("Is not possible with a restaurant's empty propierties", async () => {
+    const restaurants = await restaurantModel.find();
+    const updateRestaurant = {
+      name: '',
+      email: '',
+      department: '',
+      municipality: '',
+      direction: '',
+      delivery: '',
+      phone: '',
+      openingHour: '',
+      closingHour: '',
+    };
+
+    await api
+      .put(`/v1/restaurants/${restaurants[0]._id}`)
+      .field('name', updateRestaurant.name)
+      .field('email', updateRestaurant.email)
+      .field('department', updateRestaurant.department)
+      .field('municipality', updateRestaurant.municipality)
+      .field('direction', updateRestaurant.direction)
+      .field('delivery', updateRestaurant.delivery)
+      .field('phone', updateRestaurant.phone)
+      .field('openingHour', updateRestaurant.openingHour)
+      .field('closingHour', updateRestaurant.closingHour)
+      .set('Content-Type', 'multipart/form-data')
+      .expect(400);
+
+    const restaurantUpdated = await restaurantModel.findById(restaurants[0]._id);
+    expect(restaurantUpdated).toHaveProperty('name', restaurants[0].name);
+    expect(restaurantUpdated).toHaveProperty('email', restaurants[0].email);
+    expect(restaurantUpdated).toHaveProperty('department', restaurants[0].department);
+    expect(restaurantUpdated).toHaveProperty('municipality', restaurants[0].municipality);
+    expect(restaurantUpdated).toHaveProperty('direction', restaurants[0].direction);
+    expect(restaurantUpdated).toHaveProperty('phone', restaurants[0].phone);
+    expect(restaurantUpdated).toHaveProperty('openingHour', restaurants[0].openingHour);
+    expect(restaurantUpdated).toHaveProperty('closingHour', restaurants[0].closingHour);
+  });
+
+  test('Is not possible with a  invalid restaurant', async () => {
+    const restaurants = await restaurantModel.find();
+
+    await api
+      .put(`/v1/restaurants/${restaurants[0]._id}`)
+      .set('Content-Type', 'multipart/form-data')
+      .expect(400);
+
+    const restaurantUpdated = await restaurantModel.findById(restaurants[0]._id);
+    expect(restaurantUpdated).toHaveProperty('name', restaurants[0].name);
+    expect(restaurantUpdated).toHaveProperty('email', restaurants[0].email);
+    expect(restaurantUpdated).toHaveProperty('department', restaurants[0].department);
+    expect(restaurantUpdated).toHaveProperty('municipality', restaurants[0].municipality);
+    expect(restaurantUpdated).toHaveProperty('direction', restaurants[0].direction);
+    expect(restaurantUpdated).toHaveProperty('phone', restaurants[0].phone);
+    expect(restaurantUpdated).toHaveProperty('openingHour', restaurants[0].openingHour);
+    expect(restaurantUpdated).toHaveProperty('closingHour', restaurants[0].closingHour);
+  });
+});
 afterAll(() => {
   server.close();
 });

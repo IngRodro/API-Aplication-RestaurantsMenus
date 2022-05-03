@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
-
 import getConfig from 'config';
+
+const { NODE_ENV } = process.env;
 
 const { imageCloud } = getConfig();
 
@@ -11,7 +12,7 @@ cloudinary.config({
 });
 
 export const uploadFile = async (filePath) => cloudinary.uploader.upload(filePath, {
-  folder: 'logos',
+  folder: NODE_ENV === 'test' ? 'test' : 'logos',
 });
 
 export const deleteFile = async (publicId) => cloudinary.uploader.destroy(publicId);
