@@ -1,13 +1,13 @@
 import express from 'express';
 import {
-  getAllProduct, createProduct, updateProduct, deleteProduct
+  getMenu, createMenu, updateMenu, deleteProduct
 } from './menu.controller';
 
 const router = express.Router();
 
-router.get('/', getAllProduct);
-router.post('/', createProduct);
-router.put('/:idProduct', updateProduct);
-router.delete('/:idProduct', deleteProduct);
+router.get('/:idRestaurant', getMenu);
+router.post('/', createMenu);
+router.put('/:idMenu', updateMenu);
+router.delete('/:idMenu', deleteProduct);
 
 export default router;

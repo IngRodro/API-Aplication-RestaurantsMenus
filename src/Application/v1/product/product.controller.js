@@ -20,10 +20,11 @@ export const getAllProduct = async (req, res) => {
 export const createProduct = async (req, res) => {
   const {
     name,
-    state,
   } = req.body;
 
   let image = {};
+
+  console.log(req.files);
 
   if (!name || !req.files.image) {
     return res.status(400).json({
@@ -38,11 +39,10 @@ export const createProduct = async (req, res) => {
       public_id: result.public_id,
       secure_url: result.secure_url,
     };
-    await fs.unlink(req.files.logo.tempFilePath);
+    await fs.unlink(req.files.image.tempFilePath);
     const data = await ProductModel.create(
       {
         name,
-        state,
         image
       }
     );

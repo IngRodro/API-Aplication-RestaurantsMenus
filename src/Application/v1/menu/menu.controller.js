@@ -1,16 +1,15 @@
-import fs from 'fs-extra';
 import MenuModel from './menu.model';
-import { uploadFile, deleteFile } from '../../../Utils/cloudFile';
 
-export const getAllProduct = async (req, res) => {
+export const getMenu = async (req, res) => {
   const { offset, limit } = req.params;
+  const { idRestaurant } = req.params;
 
   try {
-    const data = await MenuModel.find()
+    const data = await MenuModel.find({ restaurant: idRestaurant, status: 'active' })
       .skip(offset)
       .limit(limit)
       .populate('restaurant', ['_id', 'name'])
-      .populate('products.product', ['_id', 'name', 'price', 'type']);
+      .populate('products.product', ['_id', 'name', 'image']);
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);
@@ -21,15 +20,16 @@ export const getAllProduct = async (req, res) => {
   }
 };
 
-export const createProduct = async (req, res) => {
+export const createMenu = async (req, res) => {
   const {
     name,
-    state,
+    restaurant,
+    products,
+    price,
+    type,
   } = req.body;
 
-  let image = {};
-
-  if (!name || !req.files.image) {
+  if (!name || !restaurant || !products || !price || !type) {
     return res.status(400).json({
       message: 'Todos los campos se deben completar',
       code: 400,
@@ -37,17 +37,13 @@ export const createProduct = async (req, res) => {
   }
 
   try {
-    const result = await uploadFile(req.files.image.tempFilePath);
-    image = {
-      public_id: result.public_id,
-      secure_url: result.secure_url,
-    };
-    await fs.unlink(req.files.logo.tempFilePath);
     const data = await MenuModel.create(
       {
         name,
-        state,
-        image
+        restaurant,
+        products,
+        price,
+        type,
       }
     );
     return res.status(200).json(data);
@@ -59,9 +55,9 @@ export const createProduct = async (req, res) => {
     });
   }
 };
-export const updateProduct = async (req, res) => {
+export const updateMenu = async (req, res) => {
   const { body, params } = req;
-  const { idProduct } = params;
+  const { idMenu } = params;
 
   if (!body) {
     return res.status(400).json({
@@ -70,20 +66,13 @@ export const updateProduct = async (req, res) => {
   }
 
   try {
-    let image = {};
-    const actualData = await MenuModel.findById(idProduct);
-    await deleteFile(actualData.image.public_id);
-    const result = await uploadFile(req.files.image.tempFilePath);
-    image = {
-      public_id: result.public_id,
-      secure_url: result.secure_url,
-    };
-    await fs.unlink(req.files.image.tempFilePath);
     const data = await MenuModel.findOneAndUpdate(
-      { _id: idProduct },
+      { _id: idMenu },
       {
         name: body.name,
-        image,
+        products: body.products,
+        price: body.price,
+        type: body.type,
       }
     );
     return res.status(200).json(Object.assign(data, body));
@@ -97,11 +86,11 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   const { params } = req;
-  const { idProduct } = params;
+  const { idMenu } = params;
 
   try {
     const data = await MenuModel.findOneAndUpdate(
-      { _id: idProduct },
+      { _id: idMenu },
       { status: 'inactive' }
     );
 

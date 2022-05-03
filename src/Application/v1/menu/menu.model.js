@@ -1,23 +1,25 @@
 import mongoose from 'mongoose';
 import getModelName from 'Utils/getModelName';
-import { modelname as restaurantModelName } from '../../restaurant/restaurant.model';
-import { modelname as productModelName } from '../../product/product.model';
 
 const { Schema } = mongoose;
-const { singularName, pluralName } = getModelName('product');
+const { singularName, pluralName } = getModelName('menu');
 
 const product = new Schema(
   {
+    name: {
+      type: String,
+      required: true,
+    },
     restaurant: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: restaurantModelName,
+      ref: 'restaurants',
     },
     products: [{
       product: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: productModelName,
+        ref: 'products',
       }
     }],
     price: {
@@ -27,6 +29,11 @@ const product = new Schema(
     type: {
       type: String,
       required: true,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'deleted'],
+      default: 'active',
     }
   },
   {

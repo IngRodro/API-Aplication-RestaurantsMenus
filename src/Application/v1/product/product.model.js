@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import getModelName from 'Utils/getModelName';
 
 const { Schema } = mongoose;
-const { singularName, pluralName } = getModelName('product');
+export const { singularName, pluralName } = getModelName('product');
 
 const product = new Schema(
   {
