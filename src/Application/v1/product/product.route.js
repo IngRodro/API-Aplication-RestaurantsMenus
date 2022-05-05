@@ -6,7 +6,7 @@ import {
 
 const router = express.Router();
 
-router.get('/', getAllProduct);
+router.get('/:idRestaurant', getAllProduct);
 router.post('/', fileUpload({
   useTempFiles: true,
   tempFileDir: './uploads',

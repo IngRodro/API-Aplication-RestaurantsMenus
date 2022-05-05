@@ -3,10 +3,13 @@ import ProductModel from './product.model';
 import { uploadFile, deleteFile } from '../../../Utils/cloudFile';
 
 export const getAllProduct = async (req, res) => {
-  const { offset, limit } = req.params;
+  const { idRestaurant, offset, limit } = req.params;
 
   try {
-    const data = await ProductModel.find().skip(offset).limit(limit);
+    const data = await ProductModel.find({ restaurant: idRestaurant, status: 'active' })
+      .skip(offset)
+      .limit(limit)
+      .populate('restaurant', ['_id', 'name']);
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);
@@ -20,13 +23,14 @@ export const getAllProduct = async (req, res) => {
 export const createProduct = async (req, res) => {
   const {
     name,
+    restaurant,
   } = req.body;
 
   let image = {};
 
   console.log(req.files);
 
-  if (!name || !req.files.image) {
+  if (!name || !restaurant || !req.files.image) {
     return res.status(400).json({
       message: 'Todos los campos se deben completar',
       code: 400,
@@ -43,7 +47,8 @@ export const createProduct = async (req, res) => {
     const data = await ProductModel.create(
       {
         name,
-        image
+        image,
+        restaurant,
       }
     );
     return res.status(200).json(data);
