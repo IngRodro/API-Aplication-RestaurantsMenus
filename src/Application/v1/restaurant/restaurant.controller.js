@@ -5,9 +5,10 @@ import { uploadFile, deleteFile } from '../../../Utils/cloudFile';
 export const getAllRestaurant = async (req, res) => {
   const { offset, limit } = req.params;
   const { status = 'active' } = req.query;
+  const { idUser } = req;
 
   try {
-    const data = await RestaurantModel.find({ status })
+    const data = await RestaurantModel.find({ status, user: idUser })
       .skip(offset)
       .limit(limit);
     return res.status(200).json(data);
@@ -36,15 +37,15 @@ export const createRestaurant = async (req, res) => {
   console.log(req.body);
 
   if (
-    !name
-    || !email
-    || !department
-    || !municipality
-    || !direction
-    || !delivery
-    || !phone
-    || !openingHour
-    || !closingHour
+    !name ||
+    !email ||
+    !department ||
+    !municipality ||
+    !direction ||
+    !delivery ||
+    !phone ||
+    !openingHour ||
+    !closingHour
   ) {
     return res.status(400).json({
       message: 'Todos los campos se deben completar',

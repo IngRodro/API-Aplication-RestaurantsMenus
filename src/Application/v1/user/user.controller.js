@@ -1,3 +1,4 @@
+import { genToken } from 'Utils/Authentication';
 import userModel from './user.model';
 import { comparePass, encryptPass } from '../../../Utils/cryptPass';
 
@@ -15,9 +16,10 @@ export const loginUser = async (req, res) => {
       message: 'Invalid credentials',
     });
   }
-  return res.status(200).json({
+  const token = genToken(user._id);
+  return res.header('auth-token', token).json({
     message: 'Login success',
-    user,
+    token,
   });
 };
 
@@ -26,10 +28,7 @@ export const getAllUsers = async (req, res) => {
   const { status = 'active' } = req.query;
 
   try {
-    const data = await userModel
-      .find({ status })
-      .skip(offset)
-      .limit(limit);
+    const data = await userModel.find({ status }).skip(offset).limit(limit);
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
