@@ -22,7 +22,8 @@ const user = new Schema(
     username: {
       type: String,
       require: true,
-    }
+      unique: true,
+    },
   },
   {
     versionKey: false,

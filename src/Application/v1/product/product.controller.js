@@ -6,7 +6,10 @@ export const getAllProduct = async (req, res) => {
   const { idRestaurant, offset, limit } = req.params;
 
   try {
-    const data = await ProductModel.find({ restaurant: idRestaurant, status: 'active' })
+    const data = await ProductModel.find({
+      restaurant: idRestaurant,
+      status: 'active',
+    })
       .skip(offset)
       .limit(limit)
       .populate('restaurant', ['_id', 'name']);
@@ -21,10 +24,7 @@ export const getAllProduct = async (req, res) => {
 };
 
 export const createProduct = async (req, res) => {
-  const {
-    name,
-    restaurant,
-  } = req.body;
+  const { name, restaurant } = req.body;
 
   let image = {};
 
@@ -44,13 +44,11 @@ export const createProduct = async (req, res) => {
       secure_url: result.secure_url,
     };
     await fs.unlink(req.files.image.tempFilePath);
-    const data = await ProductModel.create(
-      {
-        name,
-        image,
-        restaurant,
-      }
-    );
+    const data = await ProductModel.create({
+      name,
+      image,
+      restaurant,
+    });
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);

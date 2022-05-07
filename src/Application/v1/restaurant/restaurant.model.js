@@ -54,8 +54,8 @@ const restaurant = new Schema(
       secure_url: {
         type: String,
         required: true,
-      }
-    }
+      },
+    },
   },
   {
     versionKey: false,
@@ -72,5 +72,5 @@ restaurant.set('toJSON', {
 });
 
 // rename name Example to singular Model
-export default mongoose.models[singularName]
-  || mongoose.model(pluralName, restaurant);
+export default mongoose.models[singularName] ||
+  mongoose.model(pluralName, restaurant);

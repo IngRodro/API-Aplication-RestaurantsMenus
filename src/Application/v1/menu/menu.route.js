@@ -1,6 +1,9 @@
 import express from 'express';
 import {
-  getMenu, createMenu, updateMenu, deleteProduct
+  getMenu,
+  createMenu,
+  updateMenu,
+  deleteProduct,
 } from './menu.controller';
 
 const router = express.Router();

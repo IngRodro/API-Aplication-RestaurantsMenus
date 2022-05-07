@@ -15,13 +15,15 @@ const product = new Schema(
       required: true,
       ref: 'restaurants',
     },
-    products: [{
-      product: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: 'products',
-      }
-    }],
+    products: [
+      {
+        product: {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: 'products',
+        },
+      },
+    ],
     price: {
       type: Number,
       required: true,
@@ -34,7 +36,7 @@ const product = new Schema(
       type: String,
       enum: ['active', 'inactive', 'deleted'],
       default: 'active',
-    }
+    },
   },
   {
     versionKey: false,
@@ -51,5 +53,5 @@ product.set('toJSON', {
 });
 
 // rename name Example to singular Model
-export default mongoose.models[singularName]
-  || mongoose.model(pluralName, product);
+export default mongoose.models[singularName] ||
+  mongoose.model(pluralName, product);

@@ -1,11 +1,35 @@
-import restaurantModel from '../restaurant/restaurant.model';
+import userModel from './user.model';
+import { comparePass, encryptPass } from '../../../Utils/cryptPass';
+
+export const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+  const user = await userModel.findOne({ username });
+  if (!user) {
+    return res.status(404).json({
+      message: 'User not found',
+    });
+  }
+  const isMatch = await comparePass(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({
+      message: 'Invalid credentials',
+    });
+  }
+  return res.status(200).json({
+    message: 'Login success',
+    user,
+  });
+};
 
 export const getAllUsers = async (req, res) => {
   const { offset, limit } = req.params;
   const { status = 'active' } = req.query;
 
   try {
-    const data = await restaurantModel.find({ status }).skip(offset).limit(limit);
+    const data = await userModel
+      .find({ status })
+      .skip(offset)
+      .limit(limit);
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
@@ -18,18 +42,25 @@ export const getAllUsers = async (req, res) => {
 
 export const createUser = async (req, res) => {
   const { name, username, password } = req.body;
-  try {
-    const data = await restaurantModel.create({
-      name,
-      username,
-      password
+  const user = await userModel.findOne({ username });
+  if (user) {
+    return res.status(409).json({
+      message: 'User already exists',
     });
+  }
+  const newUser = {
+    name,
+    username,
+    password: await encryptPass(password),
+  };
+  try {
+    const data = await userModel.create(newUser);
     return res.status(201).json(data);
   } catch (error) {
     console.log(error);
-    return res.status(400).json({
-      message: 'Error al registrar usuario',
-      code: 500
+    return res.status(500).json({
+      message: 'Error al crear el usuario',
+      code: 500,
     });
   }
 };

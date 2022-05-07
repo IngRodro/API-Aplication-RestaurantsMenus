@@ -23,7 +23,7 @@ const product = new Schema(
       secure_url: {
         type: String,
         required: true,
-      }
+      },
     },
     restaurant: {
       type: Schema.Types.ObjectId,
@@ -46,5 +46,5 @@ product.set('toJSON', {
 });
 
 // rename name Example to singular Model
-export default mongoose.models[singularName]
-  || mongoose.model(pluralName, product);
+export default mongoose.models[singularName] ||
+  mongoose.model(pluralName, product);

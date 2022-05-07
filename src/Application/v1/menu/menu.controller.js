@@ -5,7 +5,10 @@ export const getMenu = async (req, res) => {
   const { idRestaurant } = req.params;
 
   try {
-    const data = await MenuModel.find({ restaurant: idRestaurant, status: 'active' })
+    const data = await MenuModel.find({
+      restaurant: idRestaurant,
+      status: 'active',
+    })
       .skip(offset)
       .limit(limit)
       .populate('restaurant', ['_id', 'name'])
@@ -21,13 +24,7 @@ export const getMenu = async (req, res) => {
 };
 
 export const createMenu = async (req, res) => {
-  const {
-    name,
-    restaurant,
-    products,
-    price,
-    type,
-  } = req.body;
+  const { name, restaurant, products, price, type } = req.body;
 
   if (!name || !restaurant || !products || !price || !type) {
     return res.status(400).json({
@@ -37,15 +34,13 @@ export const createMenu = async (req, res) => {
   }
 
   try {
-    const data = await MenuModel.create(
-      {
-        name,
-        restaurant,
-        products,
-        price,
-        type,
-      }
-    );
+    const data = await MenuModel.create({
+      name,
+      restaurant,
+      products,
+      price,
+      type,
+    });
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);

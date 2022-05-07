@@ -7,7 +7,9 @@ export const getAllRestaurant = async (req, res) => {
   const { status = 'active' } = req.query;
 
   try {
-    const data = await RestaurantModel.find({ status }).skip(offset).limit(limit);
+    const data = await RestaurantModel.find({ status })
+      .skip(offset)
+      .limit(limit);
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);
