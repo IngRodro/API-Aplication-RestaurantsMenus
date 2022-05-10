@@ -1,8 +1,9 @@
 import fs from 'fs-extra';
+import { getPagination } from 'Utils/getPagination';
 import RestaurantModel from './restaurant.model';
 import { uploadFile, deleteFile } from '../../../Utils/cloudFile';
 
-export const getAllRestaurant = async (req, res) => {
+export const getRestaurantByUser = async (req, res) => {
   const { offset, limit } = req.params;
   const { status = 'active' } = req.query;
   const { idUser } = req;
@@ -12,6 +13,38 @@ export const getAllRestaurant = async (req, res) => {
       .skip(offset)
       .limit(limit);
     return res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: 'Error al obtener los datos',
+      code: 500,
+    });
+  }
+};
+
+export const getRestaurantByLocation = async (req, res) => {
+  const { status = 'active' } = req.query;
+  const { department, municipality, page } = req.query;
+  const { offset, limit } = getPagination(page, 10);
+
+  try {
+    const data = await RestaurantModel.find({
+      department,
+      municipality,
+      status,
+    });
+    if (offset >= data.length) {
+      return res.status(404).json({
+        message: 'Not found',
+      });
+    }
+    const restaurants = data.slice(offset, offset + limit);
+    return res.status(200).json({
+      restaurants,
+      currentPage: page,
+      prevPage: page - 1 > 0 ? page - 1 : null,
+      nextPage: (offset + limit) < data.length ? parseInt(page, 10) + 1 : null,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -32,9 +65,8 @@ export const createRestaurant = async (req, res) => {
     phone,
     openingHour,
     closingHour,
+    user
   } = req.body;
-
-  console.log(req.body);
 
   if (
     !name ||
@@ -45,7 +77,9 @@ export const createRestaurant = async (req, res) => {
     !delivery ||
     !phone ||
     !openingHour ||
-    !closingHour
+    !closingHour ||
+    !user ||
+    !req.files
   ) {
     return res.status(400).json({
       message: 'Todos los campos se deben completar',
@@ -54,14 +88,13 @@ export const createRestaurant = async (req, res) => {
   }
   try {
     let logo = {};
-    if (req.files.logo) {
-      const result = await uploadFile(req.files.logo.tempFilePath);
-      logo = {
-        public_id: result.public_id,
-        secure_url: result.secure_url,
-      };
-      await fs.unlink(req.files.logo.tempFilePath);
-    }
+    const result = await uploadFile(req.files.logo.tempFilePath);
+    logo = {
+      public_id: result.public_id,
+      secure_url: result.secure_url,
+    };
+    await fs.unlink(req.files.logo.tempFilePath);
+
     const data = await RestaurantModel.create({
       name,
       email,
@@ -73,6 +106,7 @@ export const createRestaurant = async (req, res) => {
       openingHour,
       closingHour,
       logo,
+      user,
     });
     return res.status(200).json(data);
   } catch (error) {

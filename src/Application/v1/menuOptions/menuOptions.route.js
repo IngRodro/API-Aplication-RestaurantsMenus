@@ -4,7 +4,7 @@ import {
   createMenu,
   updateMenu,
   deleteProduct,
-} from './menu.controller';
+} from './menuOptions.controller';
 
 const router = express.Router();
 

@@ -22,6 +22,6 @@ export const TokenValidation = (req, res, next) => {
 
 export function genToken(idUser) {
   return jwt.sign({ idUser }, process.env.TOKEN_SECRET || '', {
-    expiresIn: '12h',
+    expiresIn: '100d',
   });
 }

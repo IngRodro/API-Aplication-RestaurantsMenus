@@ -1,19 +1,50 @@
-import MenuModel from './menu.model';
+import { getPagination } from 'Utils/getPagination';
+import MenuModel from './menuOptions.model';
+
+export const verifiedProductOnMenu = async (idProduct) => {
+  const data = await MenuModel.find({
+    status: 'active',
+  })
+    .populate('restaurant', ['_id', 'name'])
+    .populate('products.product', ['_id', 'name', 'image']);
+  const dataParse = JSON.parse(JSON.stringify(data));
+  let result = false;
+  await dataParse.forEach((element) => {
+    element.products.forEach((product) => {
+      if (product.product.id === idProduct) {
+        result = true;
+      }
+    }
+    );
+  });
+  console.log(result);
+  return result;
+};
 
 export const getMenu = async (req, res) => {
-  const { offset, limit } = req.params;
   const { idRestaurant } = req.params;
+  const { page = 1 } = req.query;
+  const { limit, offset } = getPagination(page, 1);
 
   try {
     const data = await MenuModel.find({
       restaurant: idRestaurant,
       status: 'active',
     })
-      .skip(offset)
-      .limit(limit)
       .populate('restaurant', ['_id', 'name'])
       .populate('products.product', ['_id', 'name', 'image']);
-    return res.status(200).json(data);
+    if (offset >= data.length) {
+      return res.status(404).json({
+        message: 'Not found',
+      });
+    }
+    const menus = data.slice(offset, offset + limit);
+    return res.status(200).json({
+      menus,
+      currentPage: page,
+      prevPage: page - 1 > 0 ? page - 1 : null,
+      nextPage: offset + limit < data.length ? parseInt(page, 10) + 1 : null,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({

@@ -2,7 +2,7 @@ import express from 'express';
 import { TokenValidation } from 'Utils/Authentication';
 import restaurantRoutes from './restaurant/restaurant.route';
 import productRoutes from './product/product.route';
-import menuRoutes from './menu/menu.route';
+import menuRoutes from './menuOptions/menuOptions.route';
 import userRoutes from './user/user.route';
 
 const router = express.Router();

@@ -1,15 +1,17 @@
 import express from 'express';
 import fileUpload from 'express-fileupload';
 import {
-  getAllRestaurant,
+  getRestaurantByUser,
   createRestaurant,
   updateRestaurant,
   deleteRestaurant,
+  getRestaurantByLocation
 } from './restaurant.controller';
 
 const router = express.Router();
 
-router.get('/', getAllRestaurant);
+router.get('/byUser', getRestaurantByUser);
+router.get('/', getRestaurantByLocation);
 router.post(
   '/',
   fileUpload({

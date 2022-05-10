@@ -12,7 +12,7 @@ cloudinary.config({
 
 export const uploadFile = async (filePath) =>
   cloudinary.uploader.upload(filePath, {
-    folder: 'logos',
+    folder: 'images',
   });
 
 export const deleteFile = async (publicId) =>
