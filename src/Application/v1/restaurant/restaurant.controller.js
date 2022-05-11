@@ -5,25 +5,23 @@ import { uploadFile, deleteFile } from '../../../Utils/cloudFile';
 
 export const getRestaurantByUser = async (req, res) => {
   const { offset, limit } = req.params;
-  const { status = 'active' } = req.query;
   const { idUser } = req;
 
   try {
-    const data = await RestaurantModel.find({ status, user: idUser })
+    const data = await RestaurantModel.find({ status: 'active', user: idUser })
       .skip(offset)
       .limit(limit);
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: 'Error al obtener los datos',
+      message: 'Error obtaining data',
       code: 500,
     });
   }
 };
 
 export const getRestaurantByLocation = async (req, res) => {
-  const { status = 'active' } = req.query;
   const { department, municipality, page } = req.query;
   const { offset, limit } = getPagination(page, 10);
 
@@ -31,7 +29,7 @@ export const getRestaurantByLocation = async (req, res) => {
     const data = await RestaurantModel.find({
       department,
       municipality,
-      status,
+      status: 'active',
     });
     if (offset >= data.length) {
       return res.status(404).json({
@@ -41,14 +39,14 @@ export const getRestaurantByLocation = async (req, res) => {
     const restaurants = data.slice(offset, offset + limit);
     return res.status(200).json({
       restaurants,
-      currentPage: page,
+      currentPage: page || 1,
       prevPage: page - 1 > 0 ? page - 1 : null,
-      nextPage: (offset + limit) < data.length ? parseInt(page, 10) + 1 : null,
+      nextPage: offset < data.length ? parseInt(page, 10) + 1 : null,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: 'Error al obtener los datos',
+      message: 'Error obtaining data',
       code: 500,
     });
   }
@@ -65,12 +63,11 @@ export const createRestaurant = async (req, res) => {
     phone,
     openingHour,
     closingHour,
-    user
+    user,
   } = req.body;
 
   if (
     !name ||
-    !email ||
     !department ||
     !municipality ||
     !direction ||
@@ -82,7 +79,7 @@ export const createRestaurant = async (req, res) => {
     !req.files
   ) {
     return res.status(400).json({
-      message: 'Todos los campos se deben completar',
+      message: 'All fields are required',
       code: 400,
     });
   }
@@ -112,19 +109,54 @@ export const createRestaurant = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: 'Error al obtener los datos',
+      message: 'Error creating new restaurant',
       code: 500,
     });
   }
 };
 export const updateRestaurant = async (req, res) => {
-  const { body, params } = req;
-  const { idRestaurant } = params;
+  const { idRestaurant } = req.params;
+  const {
+    name,
+    email,
+    department,
+    municipality,
+    direction,
+    delivery,
+    phone,
+    openingHour,
+    closingHour,
+  } = req.body;
 
-  if (!body || !req.files?.logo) {
+  if (
+    !name ||
+    !department ||
+    !municipality ||
+    !direction ||
+    !delivery ||
+    !phone
+  ) {
     return res.status(400).json({
-      message: 'Hacen faltan campos',
+      message: 'All fields are required',
     });
+  }
+
+  if (!req.files?.logo) {
+    const data = await RestaurantModel.findOneAndUpdate(
+      { _id: idRestaurant },
+      {
+        name,
+        email,
+        department,
+        municipality,
+        direction,
+        delivery,
+        phone,
+        openingHour,
+        closingHour,
+      }
+    );
+    return res.status(200).json(data);
   }
 
   try {
@@ -140,23 +172,23 @@ export const updateRestaurant = async (req, res) => {
     const data = await RestaurantModel.findOneAndUpdate(
       { _id: idRestaurant },
       {
-        name: body.name,
-        email: body.email,
-        department: body.department,
-        municipality: body.municipality,
-        direction: body.direction,
-        delivery: body.delivery,
-        phone: body.phone,
-        openingHour: body.openingHour,
-        closingHour: body.closingHour,
+        name,
+        email,
+        department,
+        municipality,
+        direction,
+        delivery,
+        phone,
+        openingHour,
+        closingHour,
         logo,
       }
     );
-    return res.status(200).json(Object.assign(data, body));
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({
       code: 500,
-      message: 'No se pudo actualizar el registro',
+      message: "Don't cant update the restaurant",
     });
   }
 };
@@ -177,7 +209,7 @@ export const deleteRestaurant = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       code: 500,
-      message: 'No se pudo eliminar el registro',
+      message: "Don't cant delete the restaurant",
     });
   }
 };

@@ -18,25 +18,8 @@ export const loginUser = async (req, res) => {
   }
   const token = genToken(user._id);
   return res.header('auth-token', token).json({
-    message: 'Login success',
-    token,
+    message: 'Login success'
   });
-};
-
-export const getAllUsers = async (req, res) => {
-  const { offset, limit } = req.params;
-  const { status = 'active' } = req.query;
-
-  try {
-    const data = await userModel.find({ status }).skip(offset).limit(limit);
-    return res.status(200).json(data);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: 'Error al obtener los datos',
-      code: 500,
-    });
-  }
 };
 
 export const createUser = async (req, res) => {
@@ -59,6 +42,33 @@ export const createUser = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       message: 'Error al crear el usuario',
+      code: 500,
+    });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  const { idUser } = req;
+  const { name, username, password } = req.body;
+  const actualUser = await userModel.findById(idUser);
+  const user = await userModel.findOne({ username });
+  if (user && actualUser.username !== username) {
+    return res.status(400).json({
+      message: 'User already exists',
+    });
+  }
+  const newUser = {
+    name,
+    username,
+    password: await encryptPass(password),
+  };
+  try {
+    const data = await userModel.findByIdAndUpdate(idUser, newUser);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: 'Error updating user',
       code: 500,
     });
   }

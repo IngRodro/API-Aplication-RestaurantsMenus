@@ -6,6 +6,7 @@ const {
   APP_API_KEY,
   APP_API_SECRET,
   NODE_ENV,
+  TOKEN_SECRET,
 } = process.env;
 const config = () => ({
   port: APP_PORT || 8080,
@@ -17,6 +18,9 @@ const config = () => ({
     cloud_name: APP_CLOUD_NAME,
     api_key: APP_API_KEY,
     api_secret: APP_API_SECRET,
+  },
+  Token: {
+    secret: TOKEN_SECRET,
   },
 });
 

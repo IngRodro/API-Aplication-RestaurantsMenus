@@ -45,3 +45,6 @@ yarn.lock
 dist
 
 package-lock.json
+
+# files
+/uploads

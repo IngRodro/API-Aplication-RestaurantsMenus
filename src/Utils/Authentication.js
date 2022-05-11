@@ -1,5 +1,9 @@
 import jwt from 'jsonwebtoken';
 
+import getConfig from 'config';
+
+const { Token } = getConfig();
+
 export const TokenValidation = (req, res, next) => {
   try {
     const token = req.header('auth-token');
@@ -9,7 +13,7 @@ export const TokenValidation = (req, res, next) => {
         code: 401,
       });
     }
-    const payload = jwt.verify(token, process.env.TOKEN_SECRET || '');
+    const payload = jwt.verify(token, Token.secret || '');
     req.idUser = payload.idUser;
     return next();
   } catch (e) {
@@ -21,7 +25,7 @@ export const TokenValidation = (req, res, next) => {
 };
 
 export function genToken(idUser) {
-  return jwt.sign({ idUser }, process.env.TOKEN_SECRET || '', {
-    expiresIn: '100d',
+  return jwt.sign({ idUser }, Token.secret, {
+    expiresIn: '1d',
   });
 }

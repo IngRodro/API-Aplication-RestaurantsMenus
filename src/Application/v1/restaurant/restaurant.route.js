@@ -5,7 +5,7 @@ import {
   createRestaurant,
   updateRestaurant,
   deleteRestaurant,
-  getRestaurantByLocation
+  getRestaurantByLocation,
 } from './restaurant.controller';
 
 const router = express.Router();

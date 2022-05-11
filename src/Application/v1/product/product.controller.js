@@ -7,7 +7,7 @@ import { verifiedProductOnMenu } from '../menuOptions/menuOptions.controller';
 export const getAllProduct = async (req, res) => {
   const { idRestaurant } = req.params;
   const { page = 1 } = req.query;
-  const { limit, offset } = getPagination(page, 1);
+  const { limit, offset } = getPagination(page, 10);
 
   try {
     const data = await ProductModel.find({
@@ -24,7 +24,7 @@ export const getAllProduct = async (req, res) => {
       products,
       currentPage: page,
       prevPage: page - 1 > 0 ? page - 1 : null,
-      nextPage: (offset + limit) < data.length ? parseInt(page, 10) + 1 : null,
+      nextPage: offset + limit < data.length ? parseInt(page, 10) + 1 : null,
     });
   } catch (error) {
     console.error(error);
@@ -36,10 +36,10 @@ export const getAllProduct = async (req, res) => {
 };
 
 export const createProduct = async (req, res) => {
-  const { name, idRestaurant } = req.body;
-  const { file } = req;
+  const { name, restaurant } = req.body;
+  const { files } = req;
 
-  if (!file) {
+  if (!files) {
     return res.status(400).json({
       message: 'No se ha seleccionado un archivo',
     });
@@ -54,9 +54,10 @@ export const createProduct = async (req, res) => {
     };
     const product = await ProductModel.create({
       name,
-      restaurant: idRestaurant,
+      restaurant,
       image,
     });
+    fs.unlinkSync(req.files.image.tempFilePath);
     return res.status(201).json(product);
   } catch (error) {
     console.error(error);
@@ -68,13 +69,23 @@ export const createProduct = async (req, res) => {
 };
 
 export const updateProduct = async (req, res) => {
-  const { body, params } = req;
-  const { idProduct } = params;
+  const { idProduct } = req.params;
+  const { name } = req.body;
 
-  if (!body || !req.files) {
+  if (!name) {
     return res.status(400).json({
-      message: 'Todos los campos se deben completar',
+      message: 'All fields are required',
     });
+  }
+
+  if (!req.files?.image) {
+    const data = await ProductModel.findOneAndUpdate(
+      { _id: idProduct },
+      {
+        name,
+      }
+    );
+    return res.status(200).json(data);
   }
 
   try {
@@ -90,15 +101,15 @@ export const updateProduct = async (req, res) => {
     const data = await ProductModel.findOneAndUpdate(
       { _id: idProduct },
       {
-        name: body.name,
+        name,
         image,
       }
     );
-    return res.status(200).json(Object.assign(data, body));
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({
       code: 500,
-      message: 'Error al actualizar los datos',
+      message: 'Error updating product',
     });
   }
 };
@@ -111,7 +122,7 @@ export const deleteProduct = async (req, res) => {
   if (validate) {
     return res.status(400).json({
       message:
-        'El producto no se puede eliminar porque esta asociado a un menu',
+        "The product is being used in a menu option, you can't delete it",
       code: 400,
     });
   }
@@ -129,7 +140,7 @@ export const deleteProduct = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       code: 500,
-      message: 'Error al eliminar los datos',
+      message: 'Error deleting product',
     });
   }
 };

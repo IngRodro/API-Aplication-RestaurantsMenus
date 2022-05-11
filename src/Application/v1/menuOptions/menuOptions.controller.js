@@ -5,26 +5,23 @@ export const verifiedProductOnMenu = async (idProduct) => {
   const data = await MenuModel.find({
     status: 'active',
   })
-    .populate('restaurant', ['_id', 'name'])
     .populate('products.product', ['_id', 'name', 'image']);
   const dataParse = JSON.parse(JSON.stringify(data));
   let result = false;
-  await dataParse.forEach((element) => {
-    element.products.forEach((product) => {
+  await dataParse.forEach((menuOption) => {
+    menuOption.products.forEach((product) => {
       if (product.product.id === idProduct) {
         result = true;
       }
-    }
-    );
+    });
   });
-  console.log(result);
   return result;
 };
 
 export const getMenu = async (req, res) => {
   const { idRestaurant } = req.params;
   const { page = 1 } = req.query;
-  const { limit, offset } = getPagination(page, 1);
+  const { limit, offset } = getPagination(page, 10);
 
   try {
     const data = await MenuModel.find({
@@ -48,7 +45,7 @@ export const getMenu = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: 'Error al obtener los datos',
+      message: 'Error obtaining data',
       code: 500,
     });
   }
@@ -59,7 +56,7 @@ export const createMenu = async (req, res) => {
 
   if (!name || !restaurant || !products || !price || !type) {
     return res.status(400).json({
-      message: 'Todos los campos se deben completar',
+      message: 'All fields are required',
       code: 400,
     });
   }
@@ -76,7 +73,7 @@ export const createMenu = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: 'Error al obtener los datos',
+      message: 'Error creating Option menu',
       code: 500,
     });
   }
@@ -87,7 +84,7 @@ export const updateMenu = async (req, res) => {
 
   if (!body) {
     return res.status(400).json({
-      message: 'Todos los campos se deben completar',
+      message: 'All fields are required',
     });
   }
 
@@ -105,7 +102,7 @@ export const updateMenu = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       code: 500,
-      message: 'Error al actualizar los datos',
+      message: 'Error updating Option menu',
     });
   }
 };
@@ -127,7 +124,7 @@ export const deleteProduct = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       code: 500,
-      message: 'Error al eliminar los datos',
+      message: 'Error deleting Option menu',
     });
   }
 };
