@@ -20,8 +20,8 @@ export const verifiedProductOnMenu = async (idProduct) => {
 
 export const getMenu = async (req, res) => {
   const { idRestaurant } = req.params;
-  const { page = 1 } = req.query;
-  const { limit, offset } = getPagination(page, 10);
+  const { page = 1, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
 
   try {
     const data = await MenuModel.find({

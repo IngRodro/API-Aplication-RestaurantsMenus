@@ -7,26 +7,23 @@ import {
   deleteRestaurant,
   getRestaurantByLocation,
 } from './restaurant.controller';
+import { TokenValidation } from '../../../Utils/Authentication';
 
 const router = express.Router();
 
-router.get('/byUser', getRestaurantByUser);
+router.get('/byUser', TokenValidation, getRestaurantByUser);
 router.get('/', getRestaurantByLocation);
 router.post(
-  '/',
-  fileUpload({
+  '/', TokenValidation, fileUpload({
     useTempFiles: true,
     tempFileDir: './uploads',
-  }),
-  createRestaurant
+  }), createRestaurant
 );
 router.put(
-  '/:idRestaurant',
-  fileUpload({
+  '/:idRestaurant', TokenValidation, fileUpload({
     useTempFiles: true,
     tempFileDir: './uploads',
-  }),
-  updateRestaurant
+  }), updateRestaurant
 );
-router.delete('/:idRestaurant', deleteRestaurant);
+router.delete('/:idRestaurant', TokenValidation, deleteRestaurant);
 export default router;

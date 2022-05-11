@@ -10,9 +10,9 @@ cloudinary.config({
   api_secret: imageCloud.api_secret,
 });
 
-export const uploadFile = async (filePath) =>
+export const uploadFile = async (filePath, folder) =>
   cloudinary.uploader.upload(filePath, {
-    folder: 'images',
+    folder: `images/${folder}`,
   });
 
 export const deleteFile = async (publicId) =>

@@ -4,13 +4,10 @@ import RestaurantModel from './restaurant.model';
 import { uploadFile, deleteFile } from '../../../Utils/cloudFile';
 
 export const getRestaurantByUser = async (req, res) => {
-  const { offset, limit } = req.params;
   const { idUser } = req;
 
   try {
-    const data = await RestaurantModel.find({ status: 'active', user: idUser })
-      .skip(offset)
-      .limit(limit);
+    const data = await RestaurantModel.find({ status: 'active', user: idUser });
     return res.status(200).json(data);
   } catch (error) {
     console.error(error);
@@ -22,8 +19,8 @@ export const getRestaurantByUser = async (req, res) => {
 };
 
 export const getRestaurantByLocation = async (req, res) => {
-  const { department, municipality, page } = req.query;
-  const { offset, limit } = getPagination(page, 10);
+  const { department, municipality, page, size } = req.query;
+  const { offset, limit } = getPagination(page, size);
 
   try {
     const data = await RestaurantModel.find({
@@ -75,22 +72,27 @@ export const createRestaurant = async (req, res) => {
     !phone ||
     !openingHour ||
     !closingHour ||
-    !user ||
-    !req.files
+    !user
   ) {
     return res.status(400).json({
       message: 'All fields are required',
       code: 400,
     });
   }
+  if (!req.files?.image) {
+    return res.status(400).json({
+      message: 'Not file uploaded',
+      code: 400,
+    });
+  }
   try {
-    let logo = {};
-    const result = await uploadFile(req.files.logo.tempFilePath);
-    logo = {
+    let image = {};
+    const result = await uploadFile(req.files.image.tempFilePath, 'restaurants');
+    image = {
       public_id: result.public_id,
       secure_url: result.secure_url,
     };
-    await fs.unlink(req.files.logo.tempFilePath);
+    await fs.unlink(req.files.image.tempFilePath);
 
     const data = await RestaurantModel.create({
       name,
@@ -102,7 +104,7 @@ export const createRestaurant = async (req, res) => {
       phone,
       openingHour,
       closingHour,
-      logo,
+      image,
       user,
     });
     return res.status(200).json(data);
@@ -141,7 +143,7 @@ export const updateRestaurant = async (req, res) => {
     });
   }
 
-  if (!req.files?.logo) {
+  if (!req.files?.image) {
     const data = await RestaurantModel.findOneAndUpdate(
       { _id: idRestaurant },
       {
@@ -160,15 +162,15 @@ export const updateRestaurant = async (req, res) => {
   }
 
   try {
-    let logo = {};
+    let image = {};
     const actualData = await RestaurantModel.findById(idRestaurant);
-    await deleteFile(actualData.logo.public_id);
-    const result = await uploadFile(req.files.logo.tempFilePath);
-    logo = {
+    await deleteFile(actualData.image.public_id);
+    const result = await uploadFile(req.files.image.tempFilePath, 'restaurants');
+    image = {
       public_id: result.public_id,
       secure_url: result.secure_url,
     };
-    await fs.unlink(req.files.logo.tempFilePath);
+    await fs.unlink(req.files.image.tempFilePath);
     const data = await RestaurantModel.findOneAndUpdate(
       { _id: idRestaurant },
       {
@@ -181,7 +183,7 @@ export const updateRestaurant = async (req, res) => {
         phone,
         openingHour,
         closingHour,
-        logo,
+        image,
       }
     );
     return res.status(200).json(data);

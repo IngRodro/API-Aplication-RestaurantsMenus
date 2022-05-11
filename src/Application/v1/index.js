@@ -7,7 +7,7 @@ import userRoutes from './user/user.route';
 
 const router = express.Router();
 
-router.use('/restaurants', TokenValidation, restaurantRoutes);
+router.use('/restaurants', restaurantRoutes);
 router.use('/products', TokenValidation, productRoutes);
 router.use('/menu', TokenValidation, menuRoutes);
 router.use('/users', userRoutes);

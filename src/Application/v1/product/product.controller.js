@@ -6,8 +6,8 @@ import { verifiedProductOnMenu } from '../menuOptions/menuOptions.controller';
 
 export const getAllProduct = async (req, res) => {
   const { idRestaurant } = req.params;
-  const { page = 1 } = req.query;
-  const { limit, offset } = getPagination(page, 10);
+  const { page = 1, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
 
   try {
     const data = await ProductModel.find({
@@ -36,25 +36,25 @@ export const getAllProduct = async (req, res) => {
 };
 
 export const createProduct = async (req, res) => {
-  const { name, restaurant } = req.body;
-  const { files } = req;
+  const { name } = req.body;
+  const { files, idUser } = req;
 
   if (!files) {
     return res.status(400).json({
-      message: 'No se ha seleccionado un archivo',
+      message: 'Not file uploaded',
     });
   }
 
   try {
     let image = {};
-    const result = await uploadFile(req.files.image.tempFilePath);
+    const result = await uploadFile(req.files.image.tempFilePath, 'products');
     image = {
       public_id: result.public_id,
       secure_url: result.secure_url,
     };
     const product = await ProductModel.create({
       name,
-      restaurant,
+      user: idUser,
       image,
     });
     fs.unlinkSync(req.files.image.tempFilePath);
@@ -62,7 +62,7 @@ export const createProduct = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: 'Error al crear el producto',
+      message: 'Error creating product',
       code: 500,
     });
   }
@@ -92,7 +92,7 @@ export const updateProduct = async (req, res) => {
     let image = {};
     const actualData = await ProductModel.findById(idProduct);
     await deleteFile(actualData.image.public_id);
-    const result = await uploadFile(req.files.image.tempFilePath);
+    const result = await uploadFile(req.files.image.tempFilePath, 'products');
     image = {
       public_id: result.public_id,
       secure_url: result.secure_url,
@@ -115,8 +115,7 @@ export const updateProduct = async (req, res) => {
 };
 
 export const deleteProduct = async (req, res) => {
-  const { params } = req;
-  const { idProduct } = params;
+  const { idProduct } = req.params;
 
   const validate = await verifiedProductOnMenu(idProduct);
   if (validate) {

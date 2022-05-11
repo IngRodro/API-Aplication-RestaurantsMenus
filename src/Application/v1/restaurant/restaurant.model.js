@@ -46,7 +46,7 @@ const restaurant = new Schema(
       type: String,
       required: true,
     },
-    logo: {
+    image: {
       public_id: {
         type: String,
         required: true,

@@ -25,10 +25,10 @@ const product = new Schema(
         required: true,
       },
     },
-    restaurant: {
+    user: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: 'restaurants',
+      ref: 'users',
     },
   },
   {
