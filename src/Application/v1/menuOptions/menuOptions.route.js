@@ -3,7 +3,7 @@ import {
   getMenu,
   createMenu,
   updateMenu,
-  deleteProduct,
+  deleteMenu,
 } from './menuOptions.controller';
 
 const router = express.Router();
@@ -11,6 +11,6 @@ const router = express.Router();
 router.get('/:idRestaurant', getMenu);
 router.post('/', createMenu);
 router.put('/:idMenu', updateMenu);
-router.delete('/:idMenu', deleteProduct);
+router.delete('/:idMenu', deleteMenu);
 
 export default router;

@@ -20,7 +20,7 @@ export const verifiedProductOnMenu = async (idProduct) => {
 
 export const getMenu = async (req, res) => {
   const { idRestaurant } = req.params;
-  const { page = 1, size } = req.query;
+  const { page, size } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
@@ -28,19 +28,19 @@ export const getMenu = async (req, res) => {
       restaurant: idRestaurant,
       status: 'active',
     })
-      .populate('restaurant', ['_id', 'name'])
       .populate('products.product', ['_id', 'name', 'image']);
     if (offset >= data.length) {
       return res.status(404).json({
         message: 'Not found',
       });
     }
-    const menus = data.slice(offset, offset + limit);
+    const menus = data.slice(offset, parseInt(offset, 10) + parseInt(limit, 10));
     return res.status(200).json({
       menus,
       currentPage: page,
+      numberOfItems: menus.length,
       prevPage: page - 1 > 0 ? page - 1 : null,
-      nextPage: offset + limit < data.length ? parseInt(page, 10) + 1 : null,
+      nextPage: (offset + menus.length) < data.length ? parseInt(page, 10) + 1 : null,
     });
   } catch (error) {
     console.error(error);
@@ -79,10 +79,10 @@ export const createMenu = async (req, res) => {
   }
 };
 export const updateMenu = async (req, res) => {
-  const { body, params } = req;
-  const { idMenu } = params;
+  const { name, products, price, type } = req.body;
+  const { idMenu } = req.params;
 
-  if (!body) {
+  if (!name || !products || !price || !type) {
     return res.status(400).json({
       message: 'All fields are required',
     });
@@ -92,13 +92,13 @@ export const updateMenu = async (req, res) => {
     const data = await MenuModel.findOneAndUpdate(
       { _id: idMenu },
       {
-        name: body.name,
-        products: body.products,
-        price: body.price,
-        type: body.type,
+        name,
+        products,
+        price,
+        type,
       }
     );
-    return res.status(200).json(Object.assign(data, body));
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({
       code: 500,
@@ -107,7 +107,7 @@ export const updateMenu = async (req, res) => {
   }
 };
 
-export const deleteProduct = async (req, res) => {
+export const deleteMenu = async (req, res) => {
   const { params } = req;
   const { idMenu } = params;
 

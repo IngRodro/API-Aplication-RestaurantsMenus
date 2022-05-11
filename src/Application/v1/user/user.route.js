@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.get('/login', loginUser);
 router.post('/', createUser);
-router.put('/:idUser', TokenValidation, updateUser);
+router.put('/', TokenValidation, updateUser);
 
 export default router;

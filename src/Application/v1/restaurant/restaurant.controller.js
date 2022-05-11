@@ -33,12 +33,13 @@ export const getRestaurantByLocation = async (req, res) => {
         message: 'Not found',
       });
     }
-    const restaurants = data.slice(offset, offset + limit);
+    const restaurants = data.slice(offset, parseInt(offset, 10) + parseInt(limit, 10));
     return res.status(200).json({
       restaurants,
-      currentPage: page || 1,
+      currentPage: page ? parseInt(page, 10) : 1,
+      numberOfItems: restaurants.length,
       prevPage: page - 1 > 0 ? page - 1 : null,
-      nextPage: offset < data.length ? parseInt(page, 10) + 1 : null,
+      nextPage: (offset + restaurants.length) < data.length ? parseInt(page || 1, 10) + 1 : null,
     });
   } catch (error) {
     console.error(error);
@@ -60,8 +61,9 @@ export const createRestaurant = async (req, res) => {
     phone,
     openingHour,
     closingHour,
-    user,
   } = req.body;
+
+  const { idUser } = req;
 
   if (
     !name ||
@@ -72,7 +74,7 @@ export const createRestaurant = async (req, res) => {
     !phone ||
     !openingHour ||
     !closingHour ||
-    !user
+    !idUser
   ) {
     return res.status(400).json({
       message: 'All fields are required',
@@ -105,7 +107,7 @@ export const createRestaurant = async (req, res) => {
       openingHour,
       closingHour,
       image,
-      user,
+      user: idUser,
     });
     return res.status(200).json(data);
   } catch (error) {
@@ -136,7 +138,9 @@ export const updateRestaurant = async (req, res) => {
     !municipality ||
     !direction ||
     !delivery ||
-    !phone
+    !phone ||
+    !openingHour ||
+    !closingHour
   ) {
     return res.status(400).json({
       message: 'All fields are required',
@@ -144,21 +148,29 @@ export const updateRestaurant = async (req, res) => {
   }
 
   if (!req.files?.image) {
-    const data = await RestaurantModel.findOneAndUpdate(
-      { _id: idRestaurant },
-      {
-        name,
-        email,
-        department,
-        municipality,
-        direction,
-        delivery,
-        phone,
-        openingHour,
-        closingHour,
-      }
-    );
-    return res.status(200).json(data);
+    try {
+      const data = await RestaurantModel.findOneAndUpdate(
+        { _id: idRestaurant },
+        {
+          name,
+          email,
+          department,
+          municipality,
+          direction,
+          delivery,
+          phone,
+          openingHour,
+          closingHour,
+        }
+      );
+      return res.status(200).json(data);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        message: 'Error updating restaurant',
+        code: 500,
+      });
+    }
   }
 
   try {

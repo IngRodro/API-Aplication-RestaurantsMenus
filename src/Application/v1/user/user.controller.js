@@ -57,13 +57,13 @@ export const updateUser = async (req, res) => {
       message: 'User already exists',
     });
   }
-  const newUser = {
+  const updatedUser = {
     name,
     username,
     password: await encryptPass(password),
   };
   try {
-    const data = await userModel.findByIdAndUpdate(idUser, newUser);
+    const data = await userModel.findByIdAndUpdate(idUser, updatedUser);
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);

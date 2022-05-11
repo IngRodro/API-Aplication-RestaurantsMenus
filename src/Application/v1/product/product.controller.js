@@ -5,13 +5,13 @@ import { uploadFile, deleteFile } from '../../../Utils/cloudFile';
 import { verifiedProductOnMenu } from '../menuOptions/menuOptions.controller';
 
 export const getAllProduct = async (req, res) => {
-  const { idRestaurant } = req.params;
-  const { page = 1, size } = req.query;
+  const { idUser } = req;
+  const { page, size } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
     const data = await ProductModel.find({
-      restaurant: idRestaurant,
+      user: idUser,
       status: 'active',
     });
     if (offset >= data.length) {
@@ -19,12 +19,13 @@ export const getAllProduct = async (req, res) => {
         message: 'Not found',
       });
     }
-    const products = data.slice(offset, offset + limit);
+    const products = data.slice(offset, parseInt(offset, 10) + parseInt(limit, 10));
     return res.status(200).json({
       products,
-      currentPage: page,
+      currentPage: page ? parseInt(page, 10) : 1,
+      numberOfItems: products.length,
       prevPage: page - 1 > 0 ? page - 1 : null,
-      nextPage: offset + limit < data.length ? parseInt(page, 10) + 1 : null,
+      nextPage: offset + products.length < data.length ? parseInt(page, 10) + 1 : null,
     });
   } catch (error) {
     console.error(error);
