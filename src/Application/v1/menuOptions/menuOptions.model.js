@@ -22,6 +22,10 @@ const product = new Schema(
           required: true,
           ref: 'products',
         },
+        quantity: {
+          type: Number,
+          required: true,
+        },
       },
     ],
     price: {
