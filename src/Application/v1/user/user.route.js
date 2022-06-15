@@ -4,7 +4,7 @@ import { TokenValidation } from '../../../Utils/Authentication';
 
 const router = express.Router();
 
-router.get('/login', loginUser);
+router.post('/login', loginUser);
 router.post('/', createUser);
 router.put('/', TokenValidation, updateUser);
 

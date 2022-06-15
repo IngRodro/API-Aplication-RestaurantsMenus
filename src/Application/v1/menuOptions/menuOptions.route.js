@@ -1,4 +1,5 @@
 import express from 'express';
+import { TokenValidation } from 'Utils/Authentication';
 import {
   getMenu,
   createMenu,
@@ -8,9 +9,10 @@ import {
 
 const router = express.Router();
 
-router.get('/:idRestaurant', getMenu);
-router.post('/', createMenu);
-router.put('/:idMenu', updateMenu);
-router.delete('/:idMenu', deleteMenu);
+router.get('/:idRestaurant', TokenValidation, getMenu);
+router.post('/', TokenValidation, createMenu);
+router.get('/show/:idRestaurant', getMenu);
+router.put('/:idMenu', TokenValidation, updateMenu);
+router.delete('/:idMenu', TokenValidation, deleteMenu);
 
 export default router;

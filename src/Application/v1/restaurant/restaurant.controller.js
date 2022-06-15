@@ -23,11 +23,31 @@ export const getRestaurantByLocation = async (req, res) => {
   const { offset, limit } = getPagination(page, size);
 
   try {
-    const data = await RestaurantModel.find({
-      department,
-      municipality,
-      status: 'active',
-    });
+    let data;
+    if (department && municipality) {
+      data = await RestaurantModel.find({
+        department,
+        municipality,
+        status: 'active',
+      });
+    } else if (department) {
+      data = await RestaurantModel.find({
+        department,
+        status: 'active',
+      });
+    } else if (municipality) {
+      data = await RestaurantModel.find({
+        municipality,
+        status: 'active',
+      });
+    } else {
+      data = await RestaurantModel.find({ status: 'active' });
+    }
+
+    if (data.length === 0) {
+      return res.status(200).json([]);
+    }
+
     if (offset >= data.length) {
       return res.status(404).json({
         message: 'Not found',
@@ -40,10 +60,11 @@ export const getRestaurantByLocation = async (req, res) => {
       numberOfItems: restaurants.length,
       prevPage: page - 1 > 0 ? page - 1 : null,
       nextPage: (offset + restaurants.length) < data.length ? parseInt(page || 1, 10) + 1 : null,
+      totalPages: Math.ceil(data.length / limit),
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    return res.status(200).json({
       message: 'Error obtaining data',
       code: 500,
     });
@@ -64,6 +85,8 @@ export const createRestaurant = async (req, res) => {
   } = req.body;
 
   const { idUser } = req;
+
+  console.log(req.body);
 
   if (
     !name ||

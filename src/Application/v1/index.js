@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.use('/restaurants', restaurantRoutes);
 router.use('/products', TokenValidation, productRoutes);
-router.use('/menu', TokenValidation, menuRoutes);
+router.use('/menu', menuRoutes);
 router.use('/users', userRoutes);
 
 export default router;

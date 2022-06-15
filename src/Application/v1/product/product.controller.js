@@ -26,6 +26,7 @@ export const getAllProduct = async (req, res) => {
       numberOfItems: products.length,
       prevPage: page - 1 > 0 ? page - 1 : null,
       nextPage: offset + products.length < data.length ? parseInt(page, 10) + 1 : null,
+      totalPages: Math.ceil(data.length / limit),
     });
   } catch (error) {
     console.error(error);
@@ -39,6 +40,7 @@ export const getAllProduct = async (req, res) => {
 export const createProduct = async (req, res) => {
   const { name } = req.body;
   const { files, idUser } = req;
+  console.log(req.body);
 
   if (!files) {
     return res.status(400).json({

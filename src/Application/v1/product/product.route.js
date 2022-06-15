@@ -9,7 +9,7 @@ import {
 
 const router = express.Router();
 
-router.get('/:idRestaurant', getAllProduct);
+router.get('/', getAllProduct);
 router.post(
   '/',
   fileUpload({
