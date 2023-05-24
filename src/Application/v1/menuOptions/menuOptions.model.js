@@ -4,7 +4,7 @@ import getModelName from 'Utils/getModelName';
 const { Schema } = mongoose;
 const { singularName, pluralName } = getModelName('menu');
 
-const product = new Schema(
+const menu = new Schema(
   {
     name: {
       type: String,
@@ -48,7 +48,7 @@ const product = new Schema(
 );
 
 // Ensure virtual fields are serialised.
-product.set('toJSON', {
+menu.set('toJSON', {
   virtuals: true,
   versionKey: false,
   transform(_doc, ret) {
@@ -58,4 +58,4 @@ product.set('toJSON', {
 
 // rename name Example to singular Model
 export default mongoose.models[singularName] ||
-  mongoose.model(pluralName, product);
+  mongoose.model(pluralName, menu);

@@ -4,22 +4,29 @@ import { comparePass, encryptPass } from '../../../Utils/cryptPass';
 
 export const loginUser = async (req, res) => {
   const { username, password } = req.body;
-  const user = await userModel.findOne({ username });
-  if (!user) {
-    return res.status(404).json({
-      message: 'User not found',
+  try {
+    const user = await userModel.findOne({ username });
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+    const isMatch = await comparePass(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        message: 'Invalid credentials',
+      });
+    }
+    const token = genToken(user._id);
+    return res.header('auth-token', token).json({
+      message: 'Login success'
+    });
+  } catch (error) {
+    console.error('Error occurred while logging in user:', error);
+    return res.status(500).json({
+      message: 'Internal server error',
     });
   }
-  const isMatch = await comparePass(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({
-      message: 'Invalid credentials',
-    });
-  }
-  const token = genToken(user._id);
-  return res.header('auth-token', token).json({
-    message: 'Login success'
-  });
 };
 
 export const createUser = async (req, res) => {
